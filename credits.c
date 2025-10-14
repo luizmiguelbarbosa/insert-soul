@@ -45,7 +45,7 @@ void ShowCredits(void){
 
     int lineCount = sizeof(credits) / sizeof(credits[0]);
     float scrollY = screenHeight;
-    float speed = 50.0f; // Velocidade da rolagem
+    float speed = 70.0f; // Velocidade da rolagem
 
     while (!WindowShouldClose())
     {
