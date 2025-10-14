@@ -55,7 +55,7 @@ bool Menu_ShowExitConfirmation(int screenWidth, int screenHeight) {
         Color noColor = CheckCollisionPointRec(mouse, btnNo) ? RED : (Color){139,0,0,255};
 
         DrawRectangleRec(btnNo, noColor);
-        DrawText("NOT", btnNo.x + 10, btnNo.y + 10, 20, WHITE);
+        DrawText(" NOT", btnNo.x + 10, btnNo.y + 10, 20, WHITE);
 
         EndDrawing();
 

@@ -1,5 +1,6 @@
 #include "raylib.h"
 #include "credits.h"
+#include "math.h"
 
 void ShowCredits(void){
     int screenWidth = GetScreenWidth();
@@ -48,27 +49,40 @@ void ShowCredits(void){
     float speed = 70.0f; // Velocidade da rolagem
 
     while (!WindowShouldClose())
-    {
-        scrollY -= GetFrameTime() * speed;
-        if (scrollY < -lineCount * 30) scrollY = screenHeight;  // repete
+{
+    // Atualiza a rolagem
+    scrollY -= GetFrameTime() * speed;
+    if (scrollY < -lineCount * 30) scrollY = screenHeight;  // repete a rolagem
 
-        BeginDrawing();
-        ClearBackground(BLACK);
+    // Atualiza timer para o piscar do texto
+    static float blinkTimer = 0.0f;
+    blinkTimer += GetFrameTime();
+    float alpha = 0.5f + 0.5f * sinf(blinkTimer * 3.0f); // varia entre 0 e 1
 
-        for (int i = 0; i < lineCount; i++) {
-            DrawText(credits[i],
-                     screenWidth/2 - MeasureText(credits[i], 20)/2,
-                     scrollY + i * 30,
-                     20,
-                     RAYWHITE);
-        }
+    BeginDrawing();
+    ClearBackground(BLACK);
 
-        DrawText("Press ENTER to return",
-                 screenWidth/2 - MeasureText("Press ENTER to return", 20)/2,
-                 screenHeight - 40, 20, GRAY);
-
-        EndDrawing();
-
-        if (IsKeyPressed(KEY_ENTER)) break;
+    // Desenha as linhas dos créditos centralizadas
+    for (int i = 0; i < lineCount; i++) {
+        DrawText(credits[i],
+                 screenWidth/2 - MeasureText(credits[i], 20)/2,
+                 scrollY + i * 30,
+                 20,
+                 RAYWHITE);
     }
+
+    // Texto piscando no canto inferior direito
+    DrawText("Press ENTER to return",
+             screenWidth - MeasureText("Press ENTER to return", 20) - 20,
+             screenHeight - 40,
+             20,
+             (Color){GRAY.r, GRAY.g, GRAY.b, (unsigned char)(255 * alpha)});
+
+    EndDrawing();
+
+    // Sai da tela de créditos ao apertar ENTER
+    if (IsKeyPressed(KEY_ENTER))
+        break;
+}
+
 }
