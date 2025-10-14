@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h> // Necessário para bool
+#include <credits.h> 
 
 #define NUM_FRAMES 10
 #define BUTTON_COUNT 7
@@ -43,18 +44,18 @@ bool Menu_ShowExitConfirmation(int screenWidth, int screenHeight) {
         BeginDrawing();
         ClearBackground(BLACK);
 
-        DrawText("Deseja realmente sair?", screenWidth/2 - 150, screenHeight/2 - 60, 24, WHITE);
+        DrawText("Are you sure you want to quit?", screenWidth/2 - 180, screenHeight/2 - 60, 24, WHITE);
 
         // Botão SIM
         Color yesColor = CheckCollisionPointRec(mouse, btnYes) ? GREEN : DARKGREEN;
         DrawRectangleRec(btnYes, yesColor);
-        DrawText("SIM", btnYes.x + 20, btnYes.y + 10, 20, WHITE);
+        DrawText("YES", btnYes.x + 20, btnYes.y + 10, 20, WHITE);
 
         // Botão NAO
         Color noColor = CheckCollisionPointRec(mouse, btnNo) ? RED : (Color){139,0,0,255};
 
         DrawRectangleRec(btnNo, noColor);
-        DrawText("NAO", btnNo.x + 10, btnNo.y + 10, 20, WHITE);
+        DrawText("NOT", btnNo.x + 10, btnNo.y + 10, 20, WHITE);
 
         EndDrawing();
 
@@ -156,7 +157,10 @@ MenuAction Menu_UpdateDraw(float deltaTime) {
                 case 0: action = MENU_ACTION_START; break;
                 case 1: action = MENU_ACTION_CONTINUE; break;
                 case 2: action = MENU_ACTION_SETTINGS; break;
-                case 3: action = MENU_ACTION_CREDITS; break;
+                case 3:
+                    action = MENU_ACTION_CREDITS;
+                    ShowCredits();
+                    break;
                 case 4: action = MENU_ACTION_LANGUAGE; break;
                 case 5: action = MENU_ACTION_VOICE; break;
                 case 6: // EXIT
