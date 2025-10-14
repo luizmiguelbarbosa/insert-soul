@@ -30,7 +30,7 @@ int main(void) {
         switch (action) {
             case MENU_ACTION_START:        printf("New Game clicado!\n"); break;
             case MENU_ACTION_CONTINUE:     printf("Continue clicado!\n"); break;
-            case MENU_ACTION_LOADSETTINGS: printf("Load Settings clicado!\n"); break;
+            case MENU_ACTION_SETTINGS:     printf("Load Settings clicado!\n"); break;
             case MENU_ACTION_CREDITS:      printf("Credits clicado!\n"); break;
             case MENU_ACTION_LANGUAGE:     printf("Language clicado!\n"); break;
             case MENU_ACTION_VOICE:        printf("Voice clicado!\n"); break;

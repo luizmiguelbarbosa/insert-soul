@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define BUFFER_SIZE 4
+#define BUFFER_SIZE 5
 
 static Texture2D buffer[BUFFER_SIZE];
 static char **framePaths;
