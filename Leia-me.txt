@@ -1,4 +1,4 @@
-//Os commandos a seguir devem ser executados no terminal raiz do seu insert_your_soul
+//Os commandos a seguir devem ser executados no terminal(CMD)raiz do seu insert_your_soul
 
 
 # For Windows:
