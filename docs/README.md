@@ -72,40 +72,72 @@ source/
                 dialogues/
                     triggers/
 
+
 ````
 
 ## Descrição das Pastas e Arquivos
 
-**assets/**: Contém todos os recursos do jogo: sprites, sons, fontes, shaders e scripts Lua.  
-- **arcades/**: Recursos gráficos de minijogos ou arcades internos.  
-- **shared/**: Assets compartilhados (ícones, efeitos visuais).  
-- **ui/**: Elementos de interface gráfica.
+🧩 Descrição das Pastas e Arquivos
+**assets/**
 
-**build/**: Arquivos gerados durante o build do projeto.  
-- **compilados.txt**: Lista de binários ou arquivos compilados.
+Contém todos os recursos do jogo: sprites, sons, fontes, shaders e scripts Lua.
 
-**docs/**: Documentação do projeto.  
-- **design/**: Documentos de design do jogo, câmera, gameplay, animações e cutscenes.
+**arcades/:** recursos gráficos de minijogos ou arcades internos
 
-**include/**: Headers públicos do projeto.  
-- **engine.h**: Declara funções do motor (inicialização, render, input, áudio, física).
+**shared/:** assets compartilhados (ícones, efeitos visuais)
 
-**source/**: Código-fonte organizado por módulos.  
-- **main.c**: Ponto de entrada do jogo. Inicializa engine, loop principal e encerra subsistemas.  
-- **arcade/**: Código de minijogos.  
-- **audio/**: Gerenciamento de música e efeitos sonoros.  
-- **core/**: Engine principal, logger e gerenciamento de memória.  
-- **game/**: Física, player, NPCs e itens.  
-- **input/**: Captura de teclado, mouse e joystick.  
-- **render/**: Renderização de sprites, HUD, câmeras e shaders.  
-- **script/**: Integração Lua → engine, cutscenes, diálogos e triggers.
+**ui/:** elementos de interface gráfica
 
----
+**build/**
 
-## 📌 Notas
+Arquivos gerados durante o build do projeto.
 
-- Cada módulo possui seu próprio **README.md** para documentação detalhada.  
-- Use **.gitignore** para ignorar **build/** e binários.  
-- Scripts Lua, shaders e assets devem permanecer nas pastas **assets/**.  
-- Mantenha alterações no **core** do motor coordenadas entre a equipe.
+**compilados.txt**: lista de binários ou arquivos compilados
 
+**docs/**
+
+Documentação do projeto.
+
+**design/:** documentos de design do jogo, câmera, gameplay, animações e cutscenes
+
+**include/**
+
+Headers públicos do projeto.
+
+**engine.h:** declara funções do motor (inicialização, render, input, áudio, física)
+
+**source/**
+
+Código-fonte organizado por módulos.
+
+**main.c:** ponto de entrada do jogo (inicializa engine, loop principal e encerra subsistemas)
+
+**arcade/:** código de minijogos
+
+**audio/:** gerenciamento de música e efeitos sonoros
+
+**core/:** engine principal, logger e gerenciamento de memória
+
+**game/:** física, player, NPCs e itens
+
+**input/:** captura de teclado, mouse e joystick
+
+**render/:** renderização de sprites, HUD, câmeras e shaders
+
+**script/:** integração Lua → engine, cutscenes, diálogos e triggers
+
+## 📌 Notas ##
+
+Cada módulo possui seu próprio README.md para documentação detalhada.
+
+Use .gitignore para ignorar build/ e binários.
+
+Scripts Lua, shaders e assets devem permanecer em assets/.
+
+Mantenha alterações no core do motor coordenadas entre a equipe.
+
+
+## 🧾 Licença ##
+
+Este projeto é de uso acadêmico e experimental.
+Para uso comercial, entre em contato com os autores.
