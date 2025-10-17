@@ -11,7 +11,8 @@
   "files.associations": {
     "windows.h": "c",
     "raylib.h": "c",
-    "system_config.h": "c"
+    "system_config.h": "c",
+    "stdio.h": "c"
   },
-  "cmake.sourceDirectory": "C:/Users/rsm7/Documents/insert_soul/nome_jogo"
+  "cmake.sourceDirectory": "C:/Users/rsm7/Documents/insert_soul/raylib"
 }
