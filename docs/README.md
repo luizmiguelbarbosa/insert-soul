@@ -126,16 +126,6 @@ Código-fonte organizado por módulos.
 
 **script/:** integração Lua → engine, cutscenes, diálogos e triggers
 
-## 📌 Notas ##
-
-Cada módulo possui seu próprio README.md para documentação detalhada.
-
-Use .gitignore para ignorar build/ e binários.
-
-Scripts Lua, shaders e assets devem permanecer em assets/.
-
-Mantenha alterações no core do motor coordenadas entre a equipe.
-
 
 ## 🧾 Licença ##
 
