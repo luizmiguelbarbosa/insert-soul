@@ -264,8 +264,8 @@ void Game_UpdateDraw(float dt) {
                     Dialog_Start(&dialog, "Acho que devo entrar nessa porta.");
                     PlayMorseSound(); // Morse ao iniciar o diálogo
                 } else {
-                    Dialog_Start(&dialog, "Esta porta está fechada!");
-                    PlayMorseSound(); // Morse ao iniciar o diálogo
+                    // Dialog_Start(&dialog, "Esta porta está fechada!");
+                    // PlayMorseSound(); // Morse ao iniciar o diálogo
                 }
             }
         }
