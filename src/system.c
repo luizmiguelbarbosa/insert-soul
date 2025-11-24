@@ -1,5 +1,5 @@
 // system.c
-#include "include/system.h"
+#include <system.h>
 
 void System_Init(const char *title, int *width, int *height) {
     getScreenResolution(width, height);

@@ -1,6 +1,6 @@
-#include "raylib.h"
-#include "credits.h"
-#include "math.h"
+#include <raylib.h>
+#include <credits.h>
+#include <math.h>
 
 void ShowCredits(void){
     int screenWidth = GetScreenWidth();

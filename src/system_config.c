@@ -1,4 +1,4 @@
-#include "./include/system_config.h"
+#include <system_config.h>
 
 #if defined(_WIN32) || defined(_WIN64)
 #define WIN32_LEAN_AND_MEAN

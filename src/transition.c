@@ -1,4 +1,4 @@
-#include "include/transition.h"
+#include <transition.h>
 #include <stdlib.h>
 #include <string.h>
 
