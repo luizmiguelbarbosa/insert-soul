@@ -3,4 +3,4 @@
 
 # For Windows:
 
-gcc src/main.c src/intro.c src/system.c  src/menu.c src/transition.c src/video_player.c src/system_config.c src/dialog.c src/game.c src/credits.c assets/icon.o -o "Insert Your Soul.exe" -O1 -Wall -std=c99 -Wno-missing-braces -I include/ -L lib/ -lraylib -lopengl32 -lgdi32 -lwinmm
+gcc src/main.c src/intro.c src/system.c  src/menu.c src/transition.c src/video_player.c src/system_config.c src/dialog.c src/game.c src/credits.c assets/icon.o -o "Insert Your Soux.exe" -O1 -Wall -std=c99 -Wno-missing-braces -I include/ -L lib/ -lraylib -lopengl32 -lgdi32 -lwinmm       
