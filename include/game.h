@@ -1,20 +1,16 @@
+// game.h
 #ifndef GAME_H
 #define GAME_H
 
-#include <raylib.h>
 #include <stdbool.h>
 
-/* Inicializa o módulo de jogo.
- * width  - largura da janela (px)
- * height - altura da janela (px)
- * Retorna true se inicialização ocorreu com sucesso. */
-bool Game_Init(int width, int height);
+// Inicializa o jogo
+bool Game_Init(int screenWidth, int screenHeight);
 
-/* Atualiza a lógica do jogo e desenha o frame atual.
- * deltaTime - tempo (segundos) desde o último frame. */
-void Game_UpdateDraw(float deltaTime);
+// MUDANÇA AQUI: Agora retorna um int (0 = nada, 1 = ir para guitar hero)
+int Game_UpdateDraw(float deltaTime);
 
-/* Libera recursos alocados pelo módulo de jogo. */
+// Descarrega tudo
 void Game_Unload(void);
 
-#endif /* GAME_H */
+#endif

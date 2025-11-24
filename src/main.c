@@ -1,35 +1,39 @@
 #include <raylib.h>
-#include <system.h>
-#include <video_player.h>
-#include <intro.h>
-#include <menu.h>
-#include <game.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
 
+// --- SEUS INCLUDES (Certifique-se que os .h existem) ---
+#include "system.h"
+#include "video_player.h"
+#include "intro.h"
+#include "menu.h"
+#include "game.h"        // Lobby
+#include "guitar_hero.h" // Minigame
+
 typedef enum {
     STATE_INTRO,
     STATE_MENU,
-    STATE_LOADING,
-    STATE_GAME
+    STATE_LOADING_LOBBY,
+    STATE_LOBBY,
+    STATE_GUITAR_HERO
 } AppState;
 
 int main(void) {
     int width, height;
-    System_Init("Insert Your Soul", &width, &height);
-    HideCursor();
 
-    // --- INTRO ---
+    // 1. Inicialização
+    System_Init("Insert Your Soul", &width, &height);
+    // HideCursor(); // Comente essa linha se quiser ver o mouse para debug
+
+    // 2. Intro
     VideoPlayer vp;
-    if (!Intro_Play(&vp, width, height,
-                    "assets/frames/intro/frame_%04d.jpg",
-                    793, 60.0f, "assets/audio/intro_audio.wav", 1.5f)) {
-        System_Close();
-        return -1;
+    if (!Intro_Play(&vp, width, height, "assets/frames/intro/frame_%04d.jpg", 793, 60.0f, "assets/audio/intro_audio.wav", 1.5f)) {
+        // Intro pulada ou finalizada
     }
 
+    // 3. Menu
     Menu_Init(width, height);
 
     AppState state = STATE_MENU;
@@ -41,70 +45,82 @@ int main(void) {
         MenuAction action;
 
         switch (state) {
-            // --- MENU ---
+            // --- MENU PRINCIPAL ---
             case STATE_MENU:
                 action = Menu_UpdateDraw(deltaTime);
-                switch (action) {
-                    case MENU_ACTION_START:
-                    case MENU_ACTION_CONTINUE:
-                        state = STATE_LOADING;
-                        loadingTimer = 0.0f;
-                        break;
-                    case MENU_ACTION_SETTINGS:
-                        printf("Load Settings clicado!\n");
-                        break;
-                    case MENU_ACTION_CREDITS:
-                        printf("Credits clicado!\n");
-                        break;
-                    case MENU_ACTION_EXIT:
-                        exitProgram = true;
-                        break;
-                    default:
-                        break;
+                if (action == MENU_ACTION_START || action == MENU_ACTION_CONTINUE) {
+                    state = STATE_LOADING_LOBBY;
+                    loadingTimer = 0.0f;
+                } else if (action == MENU_ACTION_EXIT) {
+                    exitProgram = true;
                 }
                 break;
 
-            // --- LOADING ---
-            case STATE_LOADING: {
+            // --- TELA DE CARREGAMENTO ---
+            case STATE_LOADING_LOBBY:
                 loadingTimer += deltaTime;
-
                 BeginDrawing();
                 ClearBackground(BLACK);
+                DrawText("CARREGANDO...", width/2 - 60, height/2, 20, WHITE);
 
-                // --- Círculo girando no canto inferior direito ---
-                float angle = loadingTimer * 360.0f; // velocidade em graus por segundo
-                int radius = 20;
-                int numDots = 8;
-                float dotSize = radius * 0.25f;
-
-                int centerX = width - 80;
-                int centerY = height - 80;
-
-                for (int i = 0; i < numDots; i++) {
-                    float a = angle + i * (360.0f / numDots);
-                    float rad = a * (3.1415926f / 180.0f);
-                    int dotX = centerX + (int)(radius * cos(rad));
-                    int dotY = centerY + (int)(radius * sin(rad));
-                    DrawCircle(dotX, dotY, dotSize, WHITE);
-                }
-
+                // Animação simples de loading
+                DrawCircle(width/2 + (int)(sin(GetTime()*5)*50), height/2 + 40, 10, WHITE);
                 EndDrawing();
 
-                // Inicia o jogo após 1.5s de loading
-                if (loadingTimer >= 1.5f) {
-                    if (!Game_Init(width, height)) {
-                        printf("Erro ao iniciar o jogo!\n");
-                        exitProgram = true;
+                if (loadingTimer >= 1.0f) { // 1 segundo de loading
+                    if (Game_Init(width, height)) {
+                        state = STATE_LOBBY;
                     } else {
-                        state = STATE_GAME;
+                        printf("ERRO CRITICO: Falha ao iniciar Game_Init (Lobby).\n");
+                        state = STATE_MENU;
                     }
                 }
                 break;
-            }
 
-            // --- GAME ---
-            case STATE_GAME:
-                Game_UpdateDraw(deltaTime);
+            // --- LOBBY (CASA) ---
+            case STATE_LOBBY:
+                // Retorna 0 (nada), 1 (entrar na porta)
+                int request = Game_UpdateDraw(deltaTime);
+
+                if (request == 1) {
+                    printf("--- TRANSICAO: Lobby -> Guitar Hero ---\n");
+                    Game_Unload(); // Libera memória do Lobby
+
+                    // Tenta iniciar o Guitar Hero
+                    if (GuitarHero_Init(width, height)) {
+                        state = STATE_GUITAR_HERO;
+                    } else {
+                        // SE FALHAR AQUI, É PORQUE FALTA ARQUIVO NA PASTA ASSETS
+                        printf("ERRO: Nao foi possivel iniciar o Guitar Hero.\n");
+                        printf("Verifique se 'assets/guitar_musics/teste.mid' existe.\n");
+
+                        // Volta para o Lobby como fallback
+                        Game_Init(width, height);
+                        state = STATE_LOBBY;
+                    }
+                }
+
+                if (IsKeyPressed(KEY_ESCAPE)) {
+                    Game_Unload();
+                    Menu_Init(width, height);
+                    state = STATE_MENU;
+                }
+                break;
+
+            // --- GUITAR HERO ---
+            case STATE_GUITAR_HERO:
+                GuitarHero_UpdateDraw(deltaTime);
+
+                if (IsKeyPressed(KEY_ESCAPE)) {
+                    GuitarHero_Unload();
+                    // Ao sair do Guitar Hero, volta para o Lobby
+                    if (Game_Init(width, height)) {
+                        state = STATE_LOBBY;
+                    } else {
+                        Menu_Init(width, height);
+                        state = STATE_MENU;
+                    }
+                }
                 break;
 
             default:
@@ -112,8 +128,11 @@ int main(void) {
         }
     }
 
-    Game_Unload();
+    // Limpeza final
+    if (state == STATE_LOBBY) Game_Unload();
+    if (state == STATE_GUITAR_HERO) GuitarHero_Unload();
     Menu_Unload();
     System_Close();
+
     return 0;
 }
