@@ -18,8 +18,9 @@ typedef struct {
     float charTimer;    // timer para digitação
     float charSpeed;    // velocidade de digitação
     float tempTimer;    // timer para balão temporário
-
+    
     Rectangle box;
+    Sound sfxMorse;
 } Dialog;
 
 // Funções principais
@@ -29,6 +30,7 @@ void Dialog_StartLines(Dialog *d, const char **lines, int count); // múltiplas 
 void Dialog_NextLine(Dialog *d);                                  // avança linha
 void Dialog_Update(Dialog *d, float deltaTime);
 void Dialog_Draw(Dialog *d);
+void Dialog_Unload(Dialog *d);
 
 // Funções temporárias (balão rápido)
 void Dialog_ShowTemporary(Dialog *d, const char *text, float duration);

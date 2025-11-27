@@ -324,6 +324,7 @@ int Game_UpdateDraw(float dt) {
 
 // --- UNLOAD ---
 void Game_Unload(void) {
+    Dialog_Unload(&dialog);
     UnloadTexture(player.animIdle.texture);
     UnloadTexture(player.animWalk.texture);
 

@@ -17,6 +17,9 @@ void Dialog_Init(Dialog *d) {
         GetScreenWidth() - 80,
         120
     };
+    d->sfxMorse = LoadSound("assets/audio/morse.mp3");
+    SetSoundVolume(d->sfxMorse, 0.5f);
+
 }
 
 // -------------------------------------
@@ -66,7 +69,14 @@ void Dialog_Update(Dialog *d, float deltaTime) {
 
     if (d->charTimer >= d->charSpeed && d->visibleChars < len) {
         d->charTimer = 0;
+        char nextChar = text[d->visibleChars];
+
+        // Toca SOM para cada caractere (menos espaço e quebra de linha)
+        if (nextChar != ' ' && nextChar != '\n') {
+            PlaySound(d->sfxMorse);
+        }
         d->visibleChars++;
+        
     }
 
     // avançar linha ou fechar diálogo ao apertar Enter
@@ -112,4 +122,7 @@ void Dialog_DrawTemporary(Dialog *d) {
     DrawRectangleRec(d->box, (Color){0,0,0,200});
     DrawRectangleLinesEx(d->box, 4, WHITE);
     DrawText(d->lines[0], d->box.x + 20, d->box.y + 20, 28, WHITE);
+}
+void Dialog_Unload(Dialog *d) {
+    UnloadSound(d->sfxMorse);
 }
