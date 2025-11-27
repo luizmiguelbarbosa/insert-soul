@@ -7,6 +7,7 @@
 // --- DEFINIÇÕES ---
 typedef enum {
     CUTSCENE_ENTERING,
+    CUTSCENE_CONFUSED,
     CUTSCENE_DIALOGUE,
     PLAYER_CONTROL
 } CutsceneState;
@@ -59,6 +60,11 @@ static Arcade arcades[NUM_ARCADES];
 static bool fading = false;
 static float fadeAlpha = 0.0f;
 static float fadeSpeed = 2.0f;
+
+// CUTSCENE CONFUSO TIMERS
+static float confusedTimer = 0.0f;
+static bool lookRight = true;
+static float totalConfused = 0.0f;
 
 // essas flags devem ser definidas/atualizadas no main.c e declaradas como extern aqui:
 extern bool level1Completed; // true quando o jogador termina Guitar Hero (nível 1)
@@ -173,19 +179,37 @@ int Game_UpdateDraw(float dt) {
         float targetX = GetScreenWidth()/2.0f - (fw*SCALE)/2.0f;
 
         if (player.position.x >= targetX) {
-            cutsceneState = CUTSCENE_DIALOGUE;
-            player.lastDir = (Vector2){0, 1};
+            cutsceneState = CUTSCENE_CONFUSED; // vai para a nova cutscene
             player.currentAnim = &player.animIdle;
+            player.lastDir = (Vector2){0,1}; // idle down
+            confusedTimer = 0.0f;
+            lookRight = true;
+            totalConfused = 0.0f;
+        }
+    }
+    else if (cutsceneState == CUTSCENE_CONFUSED) {
+
+        confusedTimer += dt;
+        totalConfused += dt;
+
+        if (confusedTimer >= 0.5f) {
+            confusedTimer = 0;
+            if (lookRight) player.lastDir = (Vector2){1,0};
+            else           player.lastDir = (Vector2){-1,0};
+            lookRight = !lookRight;
+        }
+
+        DrawText("?", player.position.x + fw*SCALE/2, player.position.y - 20, 30, RED);
+
+        if (totalConfused >= 3.0f) {
+            cutsceneState = CUTSCENE_DIALOGUE;
+            totalConfused = 0;
             Dialog_Start(&dialog,
                 "Bem vindo ao Lobby.\n"
                 "Use WASD para andar.\n"
                 "Interaja com os ARCADES apertando [E].");
-        }
+        }   
     }
-
-    // -------------------------
-    //  CUTSCENE: DIÁLOGO
-    // -------------------------
     else if (cutsceneState == CUTSCENE_DIALOGUE) {
 
         Dialog_Update(&dialog, dt);
@@ -195,10 +219,6 @@ int Game_UpdateDraw(float dt) {
             cutsceneState = PLAYER_CONTROL;
         }
     }
-
-    // -------------------------
-    //  GAMEPLAY
-    // -------------------------
     else if (cutsceneState == PLAYER_CONTROL) {
 
         if (!fading) {
@@ -218,14 +238,10 @@ int Game_UpdateDraw(float dt) {
             }
         }
 
-        // Limites horizontais
         if (player.position.x < 0) player.position.x = 0;
         if (player.position.x > GetScreenWidth() - fw*SCALE)
             player.position.x = GetScreenWidth() - fw*SCALE;
 
-        // -------------------------
-        //  COLISÃO COM ARCADES
-        // -------------------------
         Rectangle pRect = { player.position.x, player.position.y, fw*SCALE, fh*SCALE };
 
         for (int i = 0; i < NUM_ARCADES; i++) {
@@ -241,7 +257,6 @@ int Game_UpdateDraw(float dt) {
 
             if (CheckCollisionRecs(pRect, aRect)) {
 
-                // Texto de interação
                 DrawText("Aperte [E]",
                          arcades[i].position.x,
                          arcades[i].position.y - 30,
@@ -250,12 +265,11 @@ int Game_UpdateDraw(float dt) {
                 if (IsKeyPressed(KEY_E)) {
 
                     if (arcades[i].canEnter) {
-                        fading = true; // inicia transição
+                        fading = true;
                         fadeAlpha = 0.0f;
-                        selectedArcade = i; // salva para o main saber qual nível abrir
+                        selectedArcade = i;
                     }
                     else {
-                        // Arcade quebrado
                         Dialog_Start(&dialog,
                             "O fliperama está quebrado...\n"
                             "Complete o nível anterior para consertá-lo!");
@@ -265,58 +279,34 @@ int Game_UpdateDraw(float dt) {
         }
     }
 
-    // -------------------------
-    //  ANIMAÇÃO DO PLAYER
-    // -------------------------
     player.frameTimer += dt;
     if (player.frameTimer >= player.currentAnim->frameTime) {
         player.frameTimer = 0;
         player.frame = (player.frame + 1) % player.currentAnim->cols;
     }
 
-    // -------------------------
-    //  DRAW
-    // -------------------------
     BeginDrawing();
     ClearBackground(RAYWHITE);
 
-    // ---- ARCADES ----
     for (int i = 0; i < NUM_ARCADES; i++) {
-        DrawTextureEx(
-            arcades[i].texCurrent,
-            arcades[i].position,
-            0,
-            aScale,
-            WHITE
-        );
+        DrawTextureEx(arcades[i].texCurrent, arcades[i].position, 0, aScale, WHITE);
     }
 
-    // ---- PLAYER ----
     int row = GetSpriteRow(player.lastDir);
     Rectangle src = { player.frame * fw, row * fh, fw, fh };
     Rectangle dst = { player.position.x, player.position.y, fw*SCALE, fh*SCALE };
 
     DrawTexturePro(player.currentAnim->texture, src, dst, (Vector2){0,0}, 0, WHITE);
 
-    // ---- DIÁLOGO ----
     if (cutsceneState == CUTSCENE_DIALOGUE) {
         Dialog_Draw(&dialog);
         DrawText("PRESSIONE [ESPAÇO]", 20, GetScreenHeight()-40, 20, DARKGRAY);
     }
 
-    // -------------------------
-    //  FADE OUT TRANSIÇÃO
-    // -------------------------
     if (fading) {
-
         fadeAlpha += fadeSpeed * dt;
-
-        DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(),
-                      Fade(BLACK, fadeAlpha));
-
-        if (fadeAlpha >= 1.0f) {
-            requestLevelChange = 1;  // sinal para main mudar de cena
-        }
+        DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, fadeAlpha));
+        if (fadeAlpha >= 1.0f) requestLevelChange = 1;
     }
 
     EndDrawing();
