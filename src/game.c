@@ -7,6 +7,7 @@
 // --- DEFINIÇÕES ---
 typedef enum {
     CUTSCENE_ENTERING,
+    CUTSCENE_CONFUSED,
     CUTSCENE_DIALOGUE,
     PLAYER_CONTROL
 } CutsceneState;
@@ -174,6 +175,7 @@ int Game_UpdateDraw(float dt) {
 
         if (player.position.x >= targetX) {
             cutsceneState = CUTSCENE_DIALOGUE;
+            player.lastDir = (Vector2){0, 1};
             player.currentAnim = &player.animIdle;
             Dialog_Start(&dialog,
                 "Bem vindo ao Lobby.\n"
