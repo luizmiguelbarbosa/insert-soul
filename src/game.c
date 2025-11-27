@@ -7,7 +7,6 @@
 // --- DEFINIÇÕES ---
 typedef enum {
     CUTSCENE_ENTERING,
-    CUTSCENE_CONFUSED,
     CUTSCENE_DIALOGUE,
     PLAYER_CONTROL
 } CutsceneState;
