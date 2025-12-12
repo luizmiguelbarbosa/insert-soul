@@ -12,6 +12,7 @@ include_directories(src/game)
 include_directories(src/input)
 include_directories(src/render)
 include_directories(src/guitar_hero) # Importante para o jogo funcionar
+include_directories(src/byte2)       # <<-- ADICIONADO: headers do byte2
 
 # Configura a Raylib (ajuste o caminho se necessário)
 set(RAYLIB_INCLUDE_PATH "C:/raylib/raylib/src")
@@ -50,7 +51,10 @@ set(SOURCES
 
         # Arcade Games
         src/arcade/arcade.c
-        src/guitar_hero/guitar_hero.c  # <--- Seu novo jogo aqui
+        src/guitar_hero/guitar_hero.c  # Guitar Hero
+
+        # BYTE2 minigame (novo)
+        src/byte2/byte2.c
 )
 
 # Cria o executável apenas com código fonte
@@ -73,10 +77,12 @@ target_link_libraries(insert_soul
         advapi32
 )
 
-# (Opcional) Copia a pasta assets para o local do executável após compilar
+# Copia a pasta assets (incluindo byte_assets) para o diretório do executável após compilar
 add_custom_command(
         TARGET insert_soul POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_SOURCE_DIR}/assets
         $<TARGET_FILE_DIR:insert_soul>/assets
 )
+
+# (Opcional) se colocou os assets do byte dentro assets/byte_assets, mantenha essa pasta lá.
