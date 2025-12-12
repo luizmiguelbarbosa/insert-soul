@@ -1,16 +1,15 @@
-// game.h
 #ifndef GAME_H
 #define GAME_H
 
 #include <stdbool.h>
 
-// Inicializa o jogo
-bool Game_Init(int screenWidth, int screenHeight);
+// Variáveis globais compartilhadas (definidas no main ou game.c)
+extern int selectedArcade;
 
-// MUDANÇA AQUI: Agora retorna um int (0 = nada, 1 = ir para guitar hero)
-int Game_UpdateDraw(float deltaTime);
-
-// Descarrega tudo
+// Funções
+bool Game_Init(int width, int height);
+int Game_UpdateDraw(float dt); // Retorna 1 se pediu troca de nível
 void Game_Unload(void);
+void Game_ResetAfterMiniGame(void); // <--- Nova função
 
 #endif

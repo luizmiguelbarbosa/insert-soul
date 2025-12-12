@@ -31,7 +31,7 @@ typedef struct { float time; int fret; float sustain; bool active; bool hit; } N
 typedef struct { Vector2 position; Vector2 velocity; Color color; float life; bool active; } Particle;
 typedef enum { STATE_START, STATE_PLAYING, STATE_WIN, STATE_LOSE } GHState;
 
-// --- GLOBAIS (STATIC - ESTRUTURA ORIGINAL MANTIDA) ---
+// --- GLOBAIS ---
 static RawEvent events[MAX_EVENTS];
 static int eventCount = 0;
 static Note notes[MAX_NOTES];
@@ -220,7 +220,7 @@ void eventsToNotes(uint16_t ticksPerQN) {
 static void DrawScanlines(int screenW, int screenH) {
     for (int y = 0; y < screenH; y += 4) DrawRectangle(0, y, screenW, 1, Fade(BLACK, 0.2f));
 }
-// A FUNÇÃO DrawVignette FOI REMOVIDA PARA ELIMINAR O CORTE CIRCULAR.
+
 static void SpawnExplosion(Vector2 pos, Color color) {
     for (int i = 0; i < 20; i++) {
         particlePoolIndex = (particlePoolIndex + 1) % MAX_PARTICLES;
@@ -305,14 +305,14 @@ static void UnloadGifCorrect(void) {
     free(animFrames); animFrames = NULL; hasAnim = false;
 }
 
-// --- FUNÇÃO PÚBLICA 1: INICIALIZAÇÃO (GuitarHero_Init) ---
+// --- FUNÇÃO PÚBLICA 1: INICIALIZAÇÃO ---
 bool GuitarHero_Init(int width, int height) {
     score = 0; combo = 0; health = 50.0f; ghState = STATE_START;
 
     for (int i = 0; i < MAX_PARTICLES; i++) particles[i].active = false;
     for (int i = 0; i < NUM_FRETS; i++) fret_miss_timer[i] = 0.0f;
 
-    // 1. CARREGA MIDI (Com tentativas de fallback)
+    // 1. CARREGA MIDI
     uint16_t ticksPerQN = 480;
     const char* midiPath = "assets/guitar_musics/notes.mid";
     if (!FileExists(midiPath)) midiPath = "assets/notes.mid";
@@ -325,7 +325,7 @@ bool GuitarHero_Init(int width, int height) {
         return false;
     }
 
-    // 2. Cálculo das Posições (SETUP)
+    // 2. Cálculo das Posições
     current_game_area_start_x = (float)width / 2.0f - (BASE_WIDTH - 2 * GUTTER_WIDTH) / 2.0f;
     current_game_area_width = (float)width - (current_game_area_start_x * 2.0f);
 
@@ -343,32 +343,32 @@ bool GuitarHero_Init(int width, int height) {
     if (FileExists("assets/guitar.gif")) LoadGifCorrect("assets/guitar.gif");
     else if (FileExists("assets/guitar_musics/guitar.gif")) LoadGifCorrect("assets/guitar_musics/guitar.gif");
 
-    printf("DEBUG: Resultado do carregamento do GIF -> hasAnim: %d, animFramesCount: %d\n", hasAnim, animFramesCount);
-
-    // 4. Áudio
+    // 4. Áudio (Apenas streams, NÃO inicia dispositivo)
     if (IsAudioDeviceReady()) {
         haveSong = false; haveVocals = false;
         const char* sPath = FileExists("assets/song.ogg") ? "assets/song.ogg" : "assets/guitar_musics/song.ogg";
         if (FileExists(sPath)) { song = LoadMusicStream(sPath); haveSong = true; }
         const char* vPath = FileExists("assets/vocals.ogg") ? "assets/vocals.ogg" : "assets/guitar_musics/vocals.ogg";
         if (FileExists(vPath)) { vocals = LoadMusicStream(vPath); haveVocals = true; }
+    } else {
+        printf("AVISO: Audio Device não está pronto em GuitarHero_Init. Músicas não serão carregadas.\n");
     }
 
     return true;
 }
 
-// --- FUNÇÃO PÚBLICA 2: LOOP DE JOGO (GuitarHero_UpdateDraw) ---
-void GuitarHero_UpdateDraw(float dt) {
+// --- FUNÇÃO PÚBLICA 2: LOOP DE JOGO ---
+// RETORNA TRUE se o jogo deve continuar, FALSE se deve sair para o lobby
+bool GuitarHero_UpdateDraw(float dt) {
     int w = GetScreenWidth();
     int h = GetScreenHeight();
 
-    // Recálculo da HIT ZONE e LAYOUT (para Fullscreen/redimensionamento)
+    // Recálculo da HIT ZONE e LAYOUT
     current_hit_zone_y = (float)h - (BASE_HIT_ZONE_OFFSET * ((float)h / BASE_HEIGHT));
     float current_gutter_width = GUTTER_WIDTH * ((float)w / BASE_WIDTH);
     current_game_area_start_x = current_gutter_width;
     current_game_area_width = w - (current_gutter_width * 2.0f);
 
-    // Recalcula as posições das frets
     const float LANE_SPACING = 100.0f;
     const float HIGHWAY_CENTER_X = current_game_area_start_x + current_game_area_width / 2.0f;
     float startX = HIGHWAY_CENTER_X - (((NUM_FRETS - 1) * LANE_SPACING) / 2.0f);
@@ -386,6 +386,13 @@ void GuitarHero_UpdateDraw(float dt) {
             if (haveVocals) PlayMusicStream(vocals);
         }
     } else if (ghState == STATE_PLAYING) {
+        // --- BOTÃO DE VITÓRIA AUTOMÁTICA (CHEAT) ---
+        if (IsKeyPressed(KEY_I)) {
+            ghState = STATE_WIN;
+            score += 5000; // Pontos bônus
+            combo += 50;
+        }
+
         if (haveSong) UpdateMusicStream(song);
         if (haveVocals) UpdateMusicStream(vocals);
 
@@ -468,14 +475,12 @@ void GuitarHero_UpdateDraw(float dt) {
                 }
             }
         }
-
         UpdateParticles(dt);
     }
 
     // --- DRAW ---
     BeginDrawing();
 
-    // Background
     if (background.id > 0) {
         DrawTexturePro(background, (Rectangle){0,0,background.width,background.height}, (Rectangle){0,0,w,h}, (Vector2){0,0}, 0, WHITE);
         DrawRectangle(0,0,w,h, Fade(CYBER_BG, 0.3f));
@@ -483,26 +488,18 @@ void GuitarHero_UpdateDraw(float dt) {
         ClearBackground(CYBER_BG);
     }
 
-    // Valas Laterais
     DrawRectangle(0, 0, GAME_AREA_START_X_CURRENT, h, Fade(BLACK, 0.4f));
     DrawRectangleLines(0, 0, GAME_AREA_START_X_CURRENT, h, Fade(CYBER_BLUE, 0.3f));
     DrawRectangle(w - GAME_AREA_START_X_CURRENT, 0, GAME_AREA_START_X_CURRENT, h, Fade(BLACK, 0.4f));
     DrawRectangleLines(w - GAME_AREA_START_X_CURRENT, 0, GAME_AREA_START_X_CURRENT, h, Fade(CYBER_BLUE, 0.3f));
 
-    // Personagem (GIF) - AGORA SEM NENHUM CORTE CIRCULAR
     if (hasAnim) {
         Texture2D tex = animFrames[animCurrentFrame];
-
         float scale = SPRITE_SIZE / (float)tex.width;
         float sprite_display_size = SPRITE_SIZE * scale;
-
         float pos_y_center = (h - sprite_display_size) / 2.0f;
-
-        // Desenha Esquerda (Centralizado na vala esquerda)
         float pos_x_left = (GAME_AREA_START_X_CURRENT - sprite_display_size) / 2.0f;
         DrawTextureEx(tex, (Vector2){pos_x_left, pos_y_center}, 0, scale, WHITE);
-
-        // Desenha Direita (Espelhado e centralizado na vala direita)
         float pos_x_right = w - GAME_AREA_START_X_CURRENT + pos_x_left;
         Rectangle src_right = {0, 0, (float)tex.width, (float)tex.height};
         Rectangle dst_right = {pos_x_right, pos_y_center, sprite_display_size, sprite_display_size};
@@ -513,14 +510,12 @@ void GuitarHero_UpdateDraw(float dt) {
         DrawText("ASSET OFFLINE", (GUTTER_WIDTH-SPRITE_SIZE)/2 + 10, (h-SPRITE_SIZE)/2 + 100, 20, WHITE);
     }
 
-    // Pista Central
     DrawRectangleGradientV(GAME_AREA_START_X_CURRENT, 0, GAME_AREA_WIDTH_CURRENT, h, Fade(BLACK,0.0f), Fade(BLACK,0.8f));
     for (int i = 0; i <= NUM_FRETS; i++) {
         float x = fret_positions[0] - 50 + (i * 100);
         DrawLineV((Vector2){x,0}, (Vector2){x,h}, Fade(CYBER_BLUE, 0.3f));
     }
 
-    // Botões da Base e Notas
     for (int i = 0; i < NUM_FRETS; i++) {
         float x = fret_positions[i];
         Color c = fret_colors[i];
@@ -552,7 +547,6 @@ void GuitarHero_UpdateDraw(float dt) {
     DrawParticles();
     DrawScanlines(w, h);
 
-    // UI Topo
     DrawRectangle(0,0,w, 70, BLACK);
     DrawLine(0, 70, w, 70, CYBER_BLUE);
     DrawText(TextFormat("SCORE: %06d", (int)score), 20, 20, 30, WHITE);
@@ -562,7 +556,6 @@ void GuitarHero_UpdateDraw(float dt) {
     Color hc = health > 50 ? GREEN : (health > 25 ? YELLOW : RED);
     DrawRectangle(barX+2, 27, (barW-4) * (health / 100.0f), 16, hc);
 
-    // TELAS DE ESTADO (START / END)
     if (ghState == STATE_START) {
         DrawRectangle(0, 0, w, h, Fade(BLACK, 0.6f));
         DrawText("GUITAR HERO", w/2 - MeasureText("GUITAR HERO",80)/2, 150, 80, CYBER_BLUE);
@@ -582,15 +575,26 @@ void GuitarHero_UpdateDraw(float dt) {
         }
     }
 
+    // TELA DE VITÓRIA OU DERROTA
     if (ghState == STATE_WIN || ghState == STATE_LOSE) {
         DrawRectangle(0,0,w,h, Fade(BLACK, 0.85f));
         const char* msg = (ghState == STATE_WIN) ? "YOU ROCK!" : "FAILED";
         Color mc = (ghState == STATE_WIN) ? GREEN : RED;
         DrawText(msg, w/2 - MeasureText(msg, 60)/2, h/2 - 30, 60, mc);
         DrawText(TextFormat("FINAL SCORE: %d", (int)score), w/2 - 100, h/2 + 50, 30, WHITE);
+
+        // --- LÓGICA DE VOLTAR AO LOBBY ---
+        const char* exitMsg = "PRESS [ENTER] TO RETURN";
+        DrawText(exitMsg, w/2 - MeasureText(exitMsg, 20)/2, h/2 + 100, 20, WHITE);
+
+        if (IsKeyPressed(KEY_ENTER)) {
+            EndDrawing(); // Finaliza frame atual
+            return false; // SINALIZA AO MAIN.C PARA SAIR DO LOOP DO MINIGAME
+        }
     }
 
     EndDrawing();
+    return true; // Continua no jogo
 }
 
 // --- FUNÇÃO PÚBLICA 3: DESCARREGAMENTO ---
@@ -599,5 +603,7 @@ void GuitarHero_Unload(void) {
     if (haveVocals) UnloadMusicStream(vocals);
     UnloadGifCorrect();
     if (background.id > 0) UnloadTexture(background);
-    if (IsAudioDeviceReady()) CloseAudioDevice();
+
+    // !!! IMPORTANTE: CloseAudioDevice() REMOVIDO !!!
+    // Deixe o gerenciamento do Device para o byte2.c/game.c
 }

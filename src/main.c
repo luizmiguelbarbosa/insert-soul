@@ -4,14 +4,16 @@
 #include <stdbool.h>
 #include <math.h>
 
-// --- SEUS INCLUDES (Certifique-se que os .h existem) ---
+// --- SEUS INCLUDES ---
 #include "system.h"
 #include "video_player.h"
 #include "intro.h"
 #include "menu.h"
 #include "game.h"        // Lobby
-#include "guitar_hero.h" // Minigame
+#include "guitar_hero.h" // Minigame 1
+#include "byte2.h"  // Minigame 2 (Crie este .h se não tiver)
 
+// Definindo as variáveis globais que o game.c usa como 'extern'
 bool level1Completed = false;
 bool level2Completed = false;
 
@@ -20,15 +22,15 @@ typedef enum {
     STATE_MENU,
     STATE_LOADING_LOBBY,
     STATE_LOBBY,
-    STATE_GUITAR_HERO
+    STATE_GUITAR_HERO,
+    STATE_BYTE_SPACE // Novo estado para o jogo 2
 } AppState;
 
 int main(void) {
     int width, height;
 
-    // 1. Inicialização
+    // 1. Inicialização do Sistema (Audio e Janela iniciados aqui)
     System_Init("Insert Your Soul", &width, &height);
-    // HideCursor(); // Ative se quiser esconder o mouse
 
     // 2. Intro
     VideoPlayer vp;
@@ -73,17 +75,15 @@ int main(void) {
                 BeginDrawing();
                 ClearBackground(BLACK);
                 DrawText("CARREGANDO...", width/2 - 60, height/2, 20, WHITE);
-
-                // Animação simples de loading
-                DrawCircle(width/2 + (int)(sin(GetTime()*5)*50),
-                           height/2 + 40, 10, WHITE);
+                // Animação simples
+                DrawCircle(width/2 + (int)(sin(GetTime()*5)*50), height/2 + 40, 10, WHITE);
                 EndDrawing();
 
                 if (loadingTimer >= 1.0f) {
                     if (Game_Init(width, height)) {
                         state = STATE_LOBBY;
                     } else {
-                        printf("ERRO CRITICO: Falha ao iniciar Game_Init (Lobby).\n");
+                        printf("ERRO CRITICO: Falha ao iniciar Lobby.\n");
                         state = STATE_MENU;
                     }
                 }
@@ -91,20 +91,38 @@ int main(void) {
 
             // --- LOBBY / CASA ---
             case STATE_LOBBY: {
-                int request = Game_UpdateDraw(deltaTime); // NÃO pode declarar depois do label
+                int request = Game_UpdateDraw(deltaTime);
 
+                // Se request == 1, o jogador apertou 'E' em um arcade disponível
                 if (request == 1) {
-                    printf("--- TRANSICAO: Lobby -> Guitar Hero ---\n");
-                    Game_Unload();
 
-                    if (GuitarHero_Init(width, height)) {
-                        state = STATE_GUITAR_HERO;
-                    } else {
-                        printf("ERRO: Nao foi possivel iniciar o Guitar Hero.\n");
-                        printf("Verifique se 'assets/guitar_musics/teste.mid' existe.\n");
+                    // --- ARCADE 1: GUITAR HERO ---
+                    if (selectedArcade == 0) {
+                        printf("--- TRANSICAO: Lobby -> Guitar Hero ---\n");
+                        Game_Unload(); // Libera RAM do Lobby
 
-                        Game_Init(width, height);
-                        state = STATE_LOBBY;
+                        if (GuitarHero_Init(width, height)) {
+                            state = STATE_GUITAR_HERO;
+                        } else {
+                            printf("ERRO: Falha ao iniciar Guitar Hero.\n");
+                            Game_Init(width, height);
+                            Game_ResetAfterMiniGame();
+                            state = STATE_LOBBY;
+                        }
+                    }
+                    // --- ARCADE 2: BYTE SPACE (NOVO) ---
+                    else if (selectedArcade == 1) {
+                        printf("--- TRANSICAO: Lobby -> Byte Space ---\n");
+                        Game_Unload(); // Libera RAM do Lobby
+
+                        if (ByteSpace_Init(width, height)) {
+                            state = STATE_BYTE_SPACE;
+                        } else {
+                            printf("ERRO: Falha ao iniciar Byte Space.\n");
+                            Game_Init(width, height);
+                            Game_ResetAfterMiniGame();
+                            state = STATE_LOBBY;
+                        }
                     }
                 }
 
@@ -116,14 +134,38 @@ int main(void) {
                 break;
             }
 
-            // --- GUITAR HERO ---
+            // --- JOGO 1: GUITAR HERO ---
             case STATE_GUITAR_HERO:
-                GuitarHero_UpdateDraw(deltaTime);
-
-                if (IsKeyPressed(KEY_ESCAPE)) {
+                if (!GuitarHero_UpdateDraw(deltaTime)) {
+                    // Jogo acabou (Vitória ou Derrota + Enter)
                     GuitarHero_Unload();
+                    level1Completed = true; // Marca progresso
+                    printf("Nível 1 Completado!\n");
 
+                    // Volta pro Lobby
                     if (Game_Init(width, height)) {
+                        Game_ResetAfterMiniGame();
+                        state = STATE_LOBBY;
+                    } else {
+                        Menu_Init(width, height);
+                        state = STATE_MENU;
+                    }
+                }
+                break;
+
+            // --- JOGO 2: BYTE SPACE ---
+            case STATE_BYTE_SPACE:
+                if (!ByteSpace_UpdateDraw(deltaTime)) {
+                    // Jogo acabou (Vitória ou Derrota + Enter)
+                    ByteSpace_Unload();
+
+                    // Marca progresso do Nível 2
+                    level2Completed = true;
+                    printf("Nível 2 Completado!\n");
+
+                    // Volta pro Lobby (e libera o Arcade 3 se houver)
+                    if (Game_Init(width, height)) {
+                        Game_ResetAfterMiniGame();
                         state = STATE_LOBBY;
                     } else {
                         Menu_Init(width, height);
@@ -137,9 +179,11 @@ int main(void) {
         }
     }
 
-    // Limpeza final
+    // --- LIMPEZA FINAL ---
     if (state == STATE_LOBBY) Game_Unload();
     if (state == STATE_GUITAR_HERO) GuitarHero_Unload();
+    if (state == STATE_BYTE_SPACE) ByteSpace_Unload(); // Limpeza segura
+
     Menu_Unload();
     System_Close();
 

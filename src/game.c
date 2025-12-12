@@ -66,7 +66,7 @@ static float confusedTimer = 0.0f;
 static bool lookRight = true;
 static float totalConfused = 0.0f;
 
-// essas flags devem ser definidas/atualizadas no main.c e declaradas como extern aqui:
+// essas flags devem ser definidas/atualizadas no byte2.c e declaradas como extern aqui:
 extern bool level1Completed; // true quando o jogador termina Guitar Hero (nível 1)
 extern bool level2Completed; // true quando o jogador termina ByteSpace (nível 2)
 
@@ -208,7 +208,7 @@ int Game_UpdateDraw(float dt) {
                 "Bem vindo ao Lobby.\n"
                 "Use WASD para andar.\n"
                 "Interaja com os ARCADES apertando [E].");
-        }   
+        }
     }
     else if (cutsceneState == CUTSCENE_DIALOGUE) {
 
@@ -324,3 +324,19 @@ void Game_Unload(void) {
         UnloadTexture(arcades[i].texFixed);
     }
 }
+
+void Game_ResetAfterMiniGame(void) {
+    fading = false;
+    fadeAlpha = 0.0f;
+    cutsceneState = PLAYER_CONTROL; // Pula a animação de entrada
+    selectedArcade = -1;
+
+    // CORREÇÃO: Posiciona o player dentro da tela (ex: x=300)
+    // Se não fizer isso, ele nasce em x=-200 (fora da tela) por causa do Game_Init
+    player.position.x = 300.0f;
+
+    // Garante que ele olhe para a direita
+    player.lastDir = (Vector2){1, 0};
+    player.currentAnim = &player.animIdle;
+}
+
