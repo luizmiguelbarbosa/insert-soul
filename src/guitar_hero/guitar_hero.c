@@ -575,17 +575,35 @@ bool GuitarHero_UpdateDraw(float dt) {
         }
     }
 
-    // TELA DE VITÓRIA OU DERROTA
+    // --- TELA DE VITÓRIA OU DERROTA ATUALIZADA ---
     if (ghState == STATE_WIN || ghState == STATE_LOSE) {
         DrawRectangle(0,0,w,h, Fade(BLACK, 0.85f));
-        const char* msg = (ghState == STATE_WIN) ? "YOU ROCK!" : "FAILED";
-        Color mc = (ghState == STATE_WIN) ? GREEN : RED;
-        DrawText(msg, w/2 - MeasureText(msg, 60)/2, h/2 - 30, 60, mc);
-        DrawText(TextFormat("FINAL SCORE: %d", (int)score), w/2 - 100, h/2 + 50, 30, WHITE);
+
+        if (ghState == STATE_WIN) {
+            const char* msg = "YOU ROCK!";
+            DrawText(msg, w/2 - MeasureText(msg, 60)/2, h/2 - 120, 60, GREEN);
+
+            // Texto de Lore dividido em linhas para centralizar e caber
+            const char* lore1 = "Parabens, voce conseguiu salvar Mike,";
+            const char* lore2 = "agora voces podem seguir juntos para salvar Byte";
+            const char* lore3 = "e unir forcas para tentar derrotar Duck.";
+
+            int loreSize = 24;
+            DrawText(lore1, w/2 - MeasureText(lore1, loreSize)/2, h/2 - 20, loreSize, WHITE);
+            DrawText(lore2, w/2 - MeasureText(lore2, loreSize)/2, h/2 + 10, loreSize, WHITE);
+            DrawText(lore3, w/2 - MeasureText(lore3, loreSize)/2, h/2 + 40, loreSize, WHITE);
+
+            // Pontuação um pouco mais para baixo
+            DrawText(TextFormat("FINAL SCORE: %d", (int)score), w/2 - MeasureText(TextFormat("FINAL SCORE: %d", (int)score), 30)/2, h/2 + 90, 30, YELLOW);
+        } else {
+            const char* msg = "FAILED";
+            DrawText(msg, w/2 - MeasureText(msg, 60)/2, h/2 - 30, 60, RED);
+            DrawText(TextFormat("FINAL SCORE: %d", (int)score), w/2 - MeasureText(TextFormat("FINAL SCORE: %d", (int)score), 30)/2, h/2 + 50, 30, WHITE);
+        }
 
         // --- LÓGICA DE VOLTAR AO LOBBY ---
         const char* exitMsg = "PRESS [ENTER] TO RETURN";
-        DrawText(exitMsg, w/2 - MeasureText(exitMsg, 20)/2, h/2 + 100, 20, WHITE);
+        DrawText(exitMsg, w/2 - MeasureText(exitMsg, 20)/2, h/2 + 150, 20, GRAY);
 
         if (IsKeyPressed(KEY_ENTER)) {
             EndDrawing(); // Finaliza frame atual
@@ -603,7 +621,4 @@ void GuitarHero_Unload(void) {
     if (haveVocals) UnloadMusicStream(vocals);
     UnloadGifCorrect();
     if (background.id > 0) UnloadTexture(background);
-
-    // !!! IMPORTANTE: CloseAudioDevice() REMOVIDO !!!
-    // Deixe o gerenciamento do Device para o byte2.c/game.c
 }

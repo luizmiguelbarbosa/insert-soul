@@ -6,13 +6,14 @@
 
 // --- DEFINIÇÕES ---
 typedef enum {
+    CUTSCENE_LORE, // Tela preta com o texto de história.
     CUTSCENE_ENTERING,
     CUTSCENE_CONFUSED,
     CUTSCENE_DIALOGUE,
     PLAYER_CONTROL
 } CutsceneState;
 
-static CutsceneState cutsceneState = CUTSCENE_ENTERING;
+static CutsceneState cutsceneState = CUTSCENE_LORE;
 
 #define SPRITE_COLS 8
 #define SPRITE_ROWS 6
@@ -20,6 +21,25 @@ static CutsceneState cutsceneState = CUTSCENE_ENTERING;
 #define SCALE 5.0f
 #define NUM_ARCADES 3
 #define ARCADE_SCALE 0.25f
+
+// --- TEXTO COM QUEBRAS DE LINHA MANUAIS ---
+// Ajustei levemente as quebras para ficar visualmente agradável centralizado
+static const char *loreText =
+    "Quando abriu os olhos, tudo ao seu redor ja nao era mais o mundo real.\n"
+    "Linhas de codigo flutuavam no ar como poeira luminosa, predios pixelados\n"
+    "se erguiam em formatos impossiveis, e o som distante de engrenagens\n"
+    "digitais ecoava por todos os lados. Voce havia sido enviado para o\n"
+    "Mundo Virtual, um dominio caotico criado por uma IA fora de controle.\n\n"
+    "Tudo por um motivo: salvar seu Mike seu marido, sequestrado por uma entidade\n"
+    "misteriosa, e resgatar Byte, seu fiel cachorro, capturado enquanto\n"
+    "tentava protege-lo. Agora, ambos estavam presos em diferentes camadas\n"
+    "desse universo sintetico.\n\n"
+    "E havia apenas um caminho para sair dali.\n\n"
+    "Para libertar os dois e a si mesmo voce precisara enfrentar o soberano\n"
+    "absoluto desse reino digital: Duck, o Super Pato. Uma criatura hibrida de\n"
+    "algoritmo e vontade propria, capaz de manipular o proprio codigo do mundo.\n"
+    "Ele e o guardiao final, o erro supremo, o glitch que governa tudo.\n\n"
+    "Derrote o Super Pato. Restaure o mundo. E traga de volta quem voce ama.";
 
 // -------------------------
 //  PLAYER / ANIMAÇÕES
@@ -66,11 +86,11 @@ static float confusedTimer = 0.0f;
 static bool lookRight = true;
 static float totalConfused = 0.0f;
 
-// essas flags devem ser definidas/atualizadas no byte2.c e declaradas como extern aqui:
-extern bool level1Completed; // true quando o jogador termina Guitar Hero (nível 1)
-extern bool level2Completed; // true quando o jogador termina ByteSpace (nível 2)
+// Flags externas
+extern bool level1Completed;
+extern bool level2Completed;
 
-// usado pelo main para saber qual arcade foi selecionado
+// Seleção de arcade
 int selectedArcade = -1;
 
 // --- AUXILIAR ---
@@ -115,14 +135,14 @@ bool Game_Init(int width, int height) {
     float spacing = width / 4.0f;
     float aScale = ARCADE_SCALE;
 
-    // 🎮 ARCADE 0 — Guitar Hero (sempre consertado)
+    // 🎮 ARCADE 0 — Guitar Hero
     arcades[0].texFixed   = LoadTexture("assets/arcades/fliperama_guitarhero.png");
     arcades[0].texBroken  = LoadTexture("assets/arcades/fliperama_quebrado_guitarhero.png");
     arcades[0].position   = (Vector2){ spacing*1 - (arcades[0].texFixed.width * aScale)/2.0f, 60 };
     arcades[0].texCurrent = arcades[0].texFixed;
     arcades[0].canEnter   = true;
 
-    // 🎮 ARCADE 1 — ByteSpace (libera após nível 1)
+    // 🎮 ARCADE 1 — ByteSpace
     arcades[1].texFixed   = LoadTexture("assets/arcades/fliperama_byte.png");
     arcades[1].texBroken  = LoadTexture("assets/arcades/fliperama_quebrado_byte.png");
     arcades[1].position   = (Vector2){ spacing*2 - (arcades[1].texFixed.width * aScale)/2.0f, 60 };
@@ -134,7 +154,7 @@ bool Game_Init(int width, int height) {
         arcades[1].canEnter = false;
     }
 
-    // 🎮 ARCADE 2 — Insert (libera após nível 2)
+    // 🎮 ARCADE 2 — Insert
     arcades[2].texFixed   = LoadTexture("assets/arcades/fliperama_insert.png");
     arcades[2].texBroken  = LoadTexture("assets/arcades/fliperama_quebrado_insert.png");
     arcades[2].position   = (Vector2){ spacing*3 - (arcades[2].texFixed.width * aScale)/2.0f, 60 };
@@ -149,7 +169,7 @@ bool Game_Init(int width, int height) {
     // -------------------------
     //   ESTADOS DO JOGO
     // -------------------------
-    cutsceneState = CUTSCENE_ENTERING;
+    cutsceneState = CUTSCENE_LORE;
     fading = false;
     fadeAlpha = 0.0f;
     selectedArcade = -1;
@@ -169,9 +189,19 @@ int Game_UpdateDraw(float dt) {
     int requestLevelChange = 0;
 
     // -------------------------
+    //  CUTSCENE: LORE
+    // -------------------------
+    if (cutsceneState == CUTSCENE_LORE) {
+
+        if (IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_ENTER)) {
+            cutsceneState = CUTSCENE_ENTERING;
+        }
+
+    }
+    // -------------------------
     //  CUTSCENE: ENTRANDO
     // -------------------------
-    if (cutsceneState == CUTSCENE_ENTERING) {
+    else if (cutsceneState == CUTSCENE_ENTERING) {
 
         player.currentAnim = &player.animWalk;
         player.position.x += 180 * dt;
@@ -179,7 +209,7 @@ int Game_UpdateDraw(float dt) {
         float targetX = GetScreenWidth()/2.0f - (fw*SCALE)/2.0f;
 
         if (player.position.x >= targetX) {
-            cutsceneState = CUTSCENE_CONFUSED; // vai para a nova cutscene
+            cutsceneState = CUTSCENE_CONFUSED;
             player.currentAnim = &player.animIdle;
             player.lastDir = (Vector2){0,1}; // idle down
             confusedTimer = 0.0f;
@@ -198,8 +228,6 @@ int Game_UpdateDraw(float dt) {
             else           player.lastDir = (Vector2){-1,0};
             lookRight = !lookRight;
         }
-
-        DrawText("?", player.position.x + fw*SCALE/2, player.position.y - 20, 30, RED);
 
         if (totalConfused >= 3.0f) {
             cutsceneState = CUTSCENE_DIALOGUE;
@@ -286,21 +314,56 @@ int Game_UpdateDraw(float dt) {
     }
 
     BeginDrawing();
-    ClearBackground(RAYWHITE);
 
-    for (int i = 0; i < NUM_ARCADES; i++) {
-        DrawTextureEx(arcades[i].texCurrent, arcades[i].position, 0, aScale, WHITE);
-    }
+    if (cutsceneState == CUTSCENE_LORE) {
 
-    int row = GetSpriteRow(player.lastDir);
-    Rectangle src = { player.frame * fw, row * fh, fw, fh };
-    Rectangle dst = { player.position.x, player.position.y, fw*SCALE, fh*SCALE };
+        ClearBackground(BLACK);
 
-    DrawTexturePro(player.currentAnim->texture, src, dst, (Vector2){0,0}, 0, WHITE);
+        float fontSize = 23; // Fonte ligeiramente menor para segurança
+        float spacing = 2;
 
-    if (cutsceneState == CUTSCENE_DIALOGUE) {
-        Dialog_Draw(&dialog);
-        DrawText("PRESSIONE [ESPAÇO]", 20, GetScreenHeight()-40, 20, DARKGRAY);
+        // 1. Mede o tamanho total do bloco de texto
+        Vector2 textSize = MeasureTextEx(GetFontDefault(), loreText, fontSize, spacing);
+
+        // 2. Calcula a posição para centralizar
+        Vector2 textPosition;
+        textPosition.x = (GetScreenWidth() - textSize.x) / 2.0f;
+        textPosition.y = (GetScreenHeight() - textSize.y) / 2.0f;
+
+        // Desenha o texto centralizado
+        DrawTextEx(GetFontDefault(), loreText, textPosition, fontSize, spacing, WHITE);
+
+        // Instrução para pular
+        const char *continueText = "PRESSIONE [ESPAÇO] PARA CONTINUAR";
+        int continueFontSize = 20;
+
+        DrawText(continueText,
+                 GetScreenWidth() / 2 - MeasureText(continueText, continueFontSize) / 2,
+                 GetScreenHeight() - 40,
+                 continueFontSize, DARKGRAY);
+
+    } else {
+
+        ClearBackground(RAYWHITE);
+
+        for (int i = 0; i < NUM_ARCADES; i++) {
+            DrawTextureEx(arcades[i].texCurrent, arcades[i].position, 0, aScale, WHITE);
+        }
+
+        int row = GetSpriteRow(player.lastDir);
+        Rectangle src = { player.frame * fw, row * fh, fw, fh };
+        Rectangle dst = { player.position.x, player.position.y, fw*SCALE, fh*SCALE };
+
+        DrawTexturePro(player.currentAnim->texture, src, dst, (Vector2){0,0}, 0, WHITE);
+
+        if (cutsceneState == CUTSCENE_CONFUSED) {
+             DrawText("?", player.position.x + fw*SCALE/2, player.position.y - 20, 30, RED);
+        }
+
+        if (cutsceneState == CUTSCENE_DIALOGUE) {
+            Dialog_Draw(&dialog);
+            DrawText("PRESSIONE [ESPAÇO]", 20, GetScreenHeight()-40, 20, DARKGRAY);
+        }
     }
 
     if (fading) {
@@ -331,12 +394,10 @@ void Game_ResetAfterMiniGame(void) {
     cutsceneState = PLAYER_CONTROL; // Pula a animação de entrada
     selectedArcade = -1;
 
-    // CORREÇÃO: Posiciona o player dentro da tela (ex: x=300)
-    // Se não fizer isso, ele nasce em x=-200 (fora da tela) por causa do Game_Init
+    // Reseta posição
     player.position.x = 300.0f;
 
     // Garante que ele olhe para a direita
     player.lastDir = (Vector2){1, 0};
     player.currentAnim = &player.animIdle;
 }
-

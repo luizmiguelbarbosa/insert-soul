@@ -2,7 +2,7 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "b2_game_state.h"
-#include "b2_audio.h" // Já contém 'extern AudioManager b2AudioManager;'
+#include "b2_audio.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -16,9 +16,6 @@
 #define PLANET_CYCLE_DURATION 15.0f
 #define EXPLOSION_START_TIME 10.0f
 #define EXPLOSION_END_TIME 12.0f
-
-// REMOVIDO: extern AudioManager audioManager;
-// O header "b2_audio.h" já traz a declaração correta: 'b2AudioManager'
 
 // --- DECLARAÇÕES DAS FUNÇÕES AUXILIARES ---
 static void DrawParallaxBackground(int screenWidth, int screenHeight, float time);
@@ -44,18 +41,25 @@ void InitCutscene(CutsceneScene *cs) {
 void InitEnding(CutsceneScene *cs) {
     cs->isEnding = true;
 
-    // Carrega sprites (ajuste os caminhos se necessário)
-    // DICA: Se "assets/images/sprites/1.png" não existir, o jogo pode não desenhar nada.
-    // Certifique-se que os arquivos existem ou use texturas temporárias.
+    // 1. SEGURANÇA: Limpa o array de texturas para evitar "lixo" de memória
+    // Isso evita o bug das "linhas" se a imagem não carregar.
+    for (int i = 0; i < 5; i++) {
+        cs->endingImages[i].id = 0;
+        cs->endingImages[i].width = 0;
+        cs->endingImages[i].height = 0;
+    }
+
+    // 2. Carrega sprites (Caminhos corrigidos e verificados)
     if (FileExists("assets/byte2/images/sprites/1.png")) cs->endingImages[0] = LoadTexture("assets/byte2/images/sprites/1.png");
     if (FileExists("assets/byte2/images/sprites/2.png")) cs->endingImages[1] = LoadTexture("assets/byte2/images/sprites/2.png");
     if (FileExists("assets/byte2/images/sprites/3.png")) cs->endingImages[2] = LoadTexture("assets/byte2/images/sprites/3.png");
     if (FileExists("assets/byte2/images/sprites/4.png")) cs->endingImages[3] = LoadTexture("assets/byte2/images/sprites/4.png");
-    if (FileExists("assets/byte2/images/sprites/5.png")) cs->endingImages[4] = LoadTexture("assets/byte2/byte2/images/sprites/5.png");
+
+    // CORREÇÃO: Havia um erro de digitação aqui ("byte2/byte2")
+    if (FileExists("assets/byte2/images/sprites/5.png")) cs->endingImages[4] = LoadTexture("assets/byte2/images/sprites/5.png");
 
     cs->endingImageIndex = 0;
 
-    // CORREÇÃO: Usando b2AudioManager
     PlayMusicTrack(&b2AudioManager, MUSIC_ENDING);
 }
 
@@ -69,18 +73,12 @@ void UpdateCutscene(CutsceneScene *cs, GameState *state, float deltaTime) {
 
             // Se passar da última imagem
             if (cs->endingImageIndex > 4) {
-                // CORREÇÃO: Não feche a janela! Apenas marque como finalizado.
-                // O arquivo byte2.c vai detectar isso e retornar ao Lobby.
-
-                // Descarrega texturas (boa prática)
+                // Descarrega texturas
                 for(int i=0; i<5; i++) {
                     if (cs->endingImages[i].id > 0) UnloadTexture(cs->endingImages[i]);
                 }
 
-                // CORREÇÃO: Usando b2AudioManager
                 StopMusicStream(b2AudioManager.musicEnding);
-
-                // Sinaliza que acabou para que byte2.c possa lidar com a saída
                 cs->finished = true;
             }
         }
@@ -109,54 +107,73 @@ void DrawCutscene(CutsceneScene *cs, int screenWidth, int screenHeight) {
         ClearBackground(BLACK);
 
         const int COLUMNS = 2;
-        const int ROWS = 3;
-        const int MARGIN = 10;
+        const int ROWS = 3; // 2 linhas normais + 1 linha final larga
+        const int MARGIN = 20; // Aumentei a margem um pouco
 
         float totalUsableWidth = (float)screenWidth - (COLUMNS + 1) * MARGIN;
         float totalUsableHeight = (float)screenHeight - (ROWS + 1) * MARGIN;
+
+        // Tamanho máximo do "quadro" onde a imagem pode ficar
         float panelWidth = totalUsableWidth / COLUMNS;
         float panelHeight = totalUsableHeight / ROWS;
 
         for (int i = 0; i <= cs->endingImageIndex && i < 5; i++) {
-            // Verifica se a textura é válida antes de desenhar
-            if (cs->endingImages[i].id <= 0) continue;
+            // Verifica se a textura é válida (ID > 0 e dimensões válidas)
+            if (cs->endingImages[i].id <= 0 || cs->endingImages[i].width == 0) continue;
 
             Texture2D tex = cs->endingImages[i];
 
             int row = i / COLUMNS;
             int col = i % COLUMNS;
 
-            float targetX, targetY, drawWidth, drawHeight;
+            // Define a área do painel (O "quadradinho" da HQ)
+            Rectangle panelRect;
 
             if (i == 4) {
-                targetX = (float)MARGIN;
-                targetY = (float)MARGIN + (panelHeight + MARGIN) * 2;
-                drawWidth = (float)screenWidth - 2 * MARGIN;
-                drawHeight = panelHeight;
+                // Última imagem ocupa a largura total embaixo
+                panelRect.x = (float)MARGIN;
+                panelRect.y = (float)MARGIN + (panelHeight + MARGIN) * 2;
+                panelRect.width = (float)screenWidth - 2 * MARGIN;
+                panelRect.height = panelHeight;
             } else {
-                targetX = (float)MARGIN + (panelWidth + MARGIN) * col;
-                targetY = (float)MARGIN + (panelHeight + MARGIN) * row;
+                panelRect.x = (float)MARGIN + (panelWidth + MARGIN) * col;
+                panelRect.y = (float)MARGIN + (panelHeight + MARGIN) * row;
+                panelRect.width = panelWidth;
+                panelRect.height = panelHeight;
             }
 
-            // CORREÇÃO: DrawRectangleLinesEx não existe em versões antigas do Raylib ou tem params diferentes.
-            // Para segurança, usando DrawRectangleLines com espessura via Loop ou apenas DrawRectangle
-            DrawRectangleLines((int)targetX, (int)targetY, (int)drawWidth, (int)drawHeight, RAYWHITE);
+            // --- DESENHA A BORDA DO QUADRINHO ---
+            DrawRectangleLinesEx(panelRect, 2.0f, WHITE);
 
+            // --- CÁLCULO DE PROPORÇÃO (ASPECT RATIO) ---
+            // Isso impede que a imagem fique esticada/esmagada
+            float scaleX = panelRect.width / (float)tex.width;
+            float scaleY = panelRect.height / (float)tex.height;
+            float scale = (scaleX < scaleY) ? scaleX : scaleY; // Escolhe o menor para caber ("fit")
+
+            float drawW = (float)tex.width * scale;
+            float drawH = (float)tex.height * scale;
+
+            // Centraliza a imagem dentro do painel
+            float finalX = panelRect.x + (panelRect.width - drawW) / 2.0f;
+            float finalY = panelRect.y + (panelRect.height - drawH) / 2.0f;
+
+            // Desenha a textura com as proporções corretas
             DrawTexturePro(
                 tex,
                 (Rectangle){ 0, 0, (float)tex.width, (float)tex.height },
-                (Rectangle){ targetX + 2, targetY + 2, drawWidth - 4, drawHeight - 4 },
+                (Rectangle){ finalX, finalY, drawW, drawH },
                 (Vector2){ 0, 0 },
                 0.0f,
                 WHITE
             );
         }
 
-        DrawText("Pressione [Z] para avancar...", screenWidth - 280, screenHeight - 20, 20, RAYWHITE);
+        DrawText("Pressione [Z] para avancar...", screenWidth - 300, screenHeight - 30, 20, RAYWHITE);
         return;
     }
 
-    // --- DESENHO DA INTRO ---
+    // --- DESENHO DA INTRO (MANTIDO IGUAL) ---
     DrawRectangle(0, 0, screenWidth, screenHeight, BLACK);
     DrawParallaxBackground(screenWidth, screenHeight, GetTime());
 
