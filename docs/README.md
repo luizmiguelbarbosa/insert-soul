@@ -148,10 +148,6 @@ math.h
       <td>Gameplay systems: Player, NPCs, physics, items, and level design.</td>
     </tr>
     <tr>
-      <td><a href="https://github.com/lebb8"><b>Eduardo</b></a></td>
-      <td>Lua scripting for cutscenes, dialogues, and triggers.</td>
-    </tr>
-    <tr>
       <td><a href="https://github.com/luizmiguelbarbosa"><b>Luiz Miguel Barbosa</b></a></td>
       <td>Input handling, audio system, integration, and main game loop.</td>
     </tr>
