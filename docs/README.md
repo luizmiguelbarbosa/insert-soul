@@ -68,8 +68,8 @@ cmake --build .
 ```
 Run the generated executable inside the build folder.
 
-## Folder Structure 📂
-# Project Folder Architecture
+# Folder Structure 📂
+## Project Folder Architecture
 ```bash
 CMakeLists.txt
 README.md
