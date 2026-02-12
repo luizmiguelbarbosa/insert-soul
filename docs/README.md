@@ -17,11 +17,6 @@ The project follows good software engineering practices, with clear separation o
         <sub><b>Gustavo Charamba</b></sub>
       </a>
     </td>
-    <td align="center">
-      <a href="https://github.com/lgss0">
-        <img src="https://avatars.githubusercontent.com/lgss0" width="100px;" alt="lgss0"/><br />
-        <sub><b>Luiz Gabriel</b></sub>
-      </a>
     </td>
     <td align="center">
       <a href="https://github.com/rafael-smoura">
@@ -190,5 +185,3 @@ O desenvolvimento de uma engine modular em C trouxe desafios técnicos que exigi
 <div align="center">
   <p>Este projeto consolidou habilidades em programação de baixo nível, design de engines modulares e práticas profissionais de engenharia de software em equipe.</p>
 </div>
-
-TIRE O EDUARDO!
