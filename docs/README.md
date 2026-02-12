@@ -154,34 +154,34 @@ math.h
 </table>
 
 ---
-
 ## 📖 Concepts Applied
 
-O projeto aplica conceitos fundamentais e avançados de engenharia de software utilizando a linguagem **C**:
+The project applies both fundamental and advanced software engineering concepts using the **C** language:
 
-* **Engine Design:** Arquitetura modular e implementação de *Main Game Loop*.
-* **Data Modeling:** Modelagem de entidades baseada em `structs`.
-* **Low-level Management:** Gerenciamento manual de memória e separação rigorosa entre *headers* e *sources*.
-* **Graphics Pipeline:** Controle de pipeline de renderização e implementação de shaders.
-* **Systems Integration:** * Input handling (Teclado, Mouse, Joystick).
-    * Física e detecção de colisão.
-    * Integração de scripting via **Lua** para automação de diálogos e cutscenes.
+* **Engine Design:** Modular architecture and implementation of the *Main Game Loop*.
+* **Data Modeling:** Entity modeling based on `structs`.
+* **Low-level Management:** Manual memory management and strict separation between *headers* and *sources*.
+* **Graphics Pipeline:** Control of the rendering pipeline and shader implementation.
+* **Systems Integration:** 
+    * Input handling (keyboard, mouse, joystick).
+    * Physics and collision detection.
+    * Lua scripting integration for automating dialogues and cutscenes.
 
 ---
 
 ## ⚠️ Challenges & Lessons Learned
 
-O desenvolvimento de uma engine modular em C trouxe desafios técnicos que exigiram soluções robustas:
+Developing a modular engine in C brought technical challenges that required robust solutions:
 
 > [!IMPORTANT]
-> **Memory Management:** Vigilância constante para evitar *memory leaks* e acessos inválidos através de ferramentas de debug e revisões de código.
+> **Memory Management:** Continuous monitoring to prevent *memory leaks* and invalid accesses using debugging tools and code reviews.
 
-1.  **Arquitetura Multi-módulo:** A necessidade de manter dependências claras entre módulos para evitar inclusões cíclicas.
-2.  **Interoperabilidade C/Lua:** O desafio de lidar com a pilha (*stack*) do Lua para garantir a passagem correta de dados entre o motor e os scripts.
-3.  **Cross-platform Build:** Configuração do **CMake** para garantir que a compilação e o link de bibliotecas externas funcionem perfeitamente em diferentes ambientes.
+1.  **Multi-module Architecture:** The need to maintain clear dependencies between modules to avoid cyclic inclusions.
+2.  **C/Lua Interoperability:** The challenge of managing the Lua stack to ensure correct data passing between the engine and scripts.
+3.  **Cross-platform Build:** Configuring **CMake** to ensure compilation and linking of external libraries work smoothly across different environments.
 
 ---
 
 <div align="center">
-  <p>Este projeto consolidou habilidades em programação de baixo nível, design de engines modulares e práticas profissionais de engenharia de software em equipe.</p>
+  <p>This project strengthened skills in low-level programming, modular engine design, and professional software engineering practices in a team environment.</p>
 </div>
