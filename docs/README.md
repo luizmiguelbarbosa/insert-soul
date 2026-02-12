@@ -30,12 +30,6 @@ The project follows good software engineering practices, with clear separation o
       </a>
     </td>
     <td align="center">
-      <a href="https://github.com/lebb8">
-        <img src="https://avatars.githubusercontent.com/lebb8" width="100px;" alt="lebb8"/><br />
-        <sub><b>Eduardo</b></sub>
-      </a>
-    </td>
-    <td align="center">
       <a href="https://github.com/luizmiguelbarbosa">
         <img src="https://avatars.githubusercontent.com/luizmiguelbarbosa" width="100px;" alt="Luiz Miguel Barbosa"/><br />
         <sub><b>Luiz Miguel Barbosa</b></sub>
@@ -119,7 +113,7 @@ source/
                 dialogues/
                     triggers/
 ```
-## Libraries Used 📚
+# Libraries Used 📚
 ```bash
 raylib
 stdio.h
@@ -127,81 +121,92 @@ stdlib.h
 stdbool.h
 math.h
 ```
-<div align="center">
-  <h1>🌌 Project Architecture & Team</h1>
-  <p><i>A deep dive into low-level engine development using C and Lua integration.</i></p>
-</div>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+</head>
+<body>
 
-<hr />
+  <div align="center">
+    <h1>🌌 Project Architecture & Team</h1>
+    <p><i>A deep dive into low-level engine development using C and Lua integration.</i></p>
+  </div>
 
-## 👥 Project Task Distribution
+  <hr />
 
-<table align="center" width="100%">
-  <thead>
-    <tr>
-      <th width="30%">Developer</th>
-      <th width="70%">Core Responsibilities</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><a href="https://github.com/gustavocharamba"><b>Gustavo Charamba</b></a></td>
-      <td>Engine architecture, integration of libraries, and code review.</td>
-    </tr>
-    <tr>
-      <td><a href="https://github.com/lgss0"><b>Luiz Gabriel</b></a></td>
-      <td>Rendering system, shaders, and camera controls.</td>
-    </tr>
-    <tr>
-      <td><a href="https://github.com/rafael-smoura"><b>Rafael</b></a></td>
-      <td>Gameplay systems: Player, NPCs, physics, items, and level design.</td>
-    </tr>
-    <tr>
-      <td><a href="https://github.com/lebb8"><b>Eduardo</b></a></td>
-      <td>Lua scripting for cutscenes, dialogues, and triggers.</td>
-    </tr>
-    <tr>
-      <td><a href="https://github.com/luizmiguelbarbosa"><b>Luiz Miguel Barbosa</b></a></td>
-      <td>Input handling, audio system, integration, and main game loop.</td>
-    </tr>
-    <tr>
-      <td><a href="https://github.com/miqueias-santos"><b>Miqueias Santos</b></a></td>
-      <td>Art, animations, UI, and audio effects.</td>
-    </tr>
-  </tbody>
-</table>
+  <section>
+    <h2 align="left">👥 Project Task Distribution</h2>
+    <table align="center" width="100%">
+      <thead>
+        <tr style="background-color: #161b22;">
+          <th width="30%" align="left">Developer</th>
+          <th width="70%" align="left">Core Responsibilities</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="https://github.com/gustavocharamba"><b>Gustavo Charamba</b></a></td>
+          <td>Engine architecture, integration of libraries, and code review.</td>
+        </tr>
+        <tr>
+          <td><a href="https://github.com/lgss0"><b>Luiz Gabriel</b></a></td>
+          <td>Rendering system, shaders, and camera controls.</td>
+        </tr>
+        <tr>
+          <td><a href="https://github.com/rafael-smoura"><b>Rafael</b></a></td>
+          <td>Gameplay systems: Player, NPCs, physics, items, and level design.</td>
+        </tr>
+        <tr>
+          <td><a href="https://github.com/luizmiguelbarbosa"><b>Luiz Miguel Barbosa</b></a></td>
+          <td>Input handling, audio system, integration, and main game loop.</td>
+        </tr>
+        <tr>
+          <td><a href="https://github.com/miqueias-santos"><b>Miqueias Santos</b></a></td>
+          <td>Art, animations, UI, and audio effects.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
 
----
+  <br />
 
-## 📖 Concepts Applied
+  <section>
+    <h2 align="left">📖 Concepts Applied</h2>
+    <p>The project applies both fundamental and advanced software engineering concepts using <b>C</b>:</p>
+    <ul>
+      <li><b>Engine Design:</b> Modular architecture and main game loop implementation.</li>
+      <li><b>Data Modeling:</b> Entity modeling using <code>structs</code>.</li>
+      <li><b>Low-level Management:</b> Manual memory management and strict header/source separation.</li>
+      <li><b>Graphics Pipeline:</b> Rendering pipeline control and shader implementation.</li>
+      <li><b>Systems Integration:</b> Input handling (keyboard, mouse, joystick), physics, collision detection, and Lua scripting integration for dialogues and cutscenes.</li>
+    </ul>
+  </section>
 
-O projeto aplica conceitos fundamentais e avançados de engenharia de software utilizando a linguagem **C**:
+  <br />
 
-* **Engine Design:** Arquitetura modular e implementação de *Main Game Loop*.
-* **Data Modeling:** Modelagem de entidades baseada em `structs`.
-* **Low-level Management:** Gerenciamento manual de memória e separação rigorosa entre *headers* e *sources*.
-* **Graphics Pipeline:** Controle de pipeline de renderização e implementação de shaders.
-* **Systems Integration:** * Input handling (Teclado, Mouse, Joystick).
-    * Física e detecção de colisão.
-    * Integração de scripting via **Lua** para automação de diálogos e cutscenes.
+  <section>
+    <h2 align="left">⚠️ Challenges & Lessons Learned</h2>
+    <div style="background-color: #1f2328; border-left: 5px solid #d1242f; padding: 15px; border-radius: 6px;">
+      <p style="color: #f85149; font-weight: bold; margin-bottom: 10px;">IMPORTANT</p>
+      <p>Developing a modular engine in C brought several technical challenges:</p>
+      <ul>
+        <li><b>Memory Management:</b> Continuous vigilance to avoid memory leaks or invalid accesses through debugging tools and code reviews.</li>
+        <li><b>Multi-module Architecture:</b> Needed clear dependencies between modules to prevent cyclic inclusions.</li>
+        <li><b>C/Lua Interoperability:</b> Managing the Lua stack to ensure proper data passing between engine and scripts.</li>
+        <li><b>Cross-platform Build:</b> Configuring CMake to ensure compilation and linking of external libraries across platforms.</li>
+      </ul>
+    </div>
+  </section>
 
----
+  <br />
 
-## ⚠️ Challenges & Lessons Learned
+  <div align="center">
+    <hr />
+    <p><i>This project strengthened low-level programming skills, modular engine design, and professional software engineering practices in a team environment.</i></p>
+  </div>
 
-O desenvolvimento de uma engine modular em C trouxe desafios técnicos que exigiram soluções robustas:
-
-> [!IMPORTANT]
-> **Memory Management:** Vigilância constante para evitar *memory leaks* e acessos inválidos através de ferramentas de debug e revisões de código.
-
-1.  **Arquitetura Multi-módulo:** A necessidade de manter dependências claras entre módulos para evitar inclusões cíclicas.
-2.  **Interoperabilidade C/Lua:** O desafio de lidar com a pilha (*stack*) do Lua para garantir a passagem correta de dados entre o motor e os scripts.
-3.  **Cross-platform Build:** Configuração do **CMake** para garantir que a compilação e o link de bibliotecas externas funcionem perfeitamente em diferentes ambientes.
-
----
-
-<div align="center">
-  <p>Este projeto consolidou habilidades em programação de baixo nível, design de engines modulares e práticas profissionais de engenharia de software em equipe.</p>
-</div>
+</body>
+</html>
 
 
