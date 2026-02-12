@@ -119,7 +119,7 @@ math.h
 ```
 <div align="center">
   <h1>🌌 Project Architecture & Team</h1>
-  <p><i>A deep dive into low-level engine development using C and Lua integration.</i></p>
+  <p><i>A deep dive into low-level engine development using C.</i></p>
 </div>
 
 <hr />
